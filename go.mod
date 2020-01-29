@@ -1,4 +1,4 @@
-module github.com/hrharder/gas
+module github.com/hrharder/go-gas
 
 go 1.13
 
