@@ -13,7 +13,7 @@ Built only on the standard library, it has no external dependencies other than `
 The `go-gas` module supports Go modules. Add to your project with the following command.
 
 ```
-go get -u github.com/hrharder/go-gas/gas
+go get -u github.com/hrharder/go-gas
 ```
 
 ## Usage
@@ -25,7 +25,7 @@ import (
     "fmt"
     "log"
 
-    "github.com/hrharder/go-gas/gas"
+    "github.com/hrharder/go-gas"
 )
 
 func main() {
