@@ -25,7 +25,7 @@ import (
     "fmt"
     "log"
 
-    "github.com/hrharder/go-gas"
+    "github.com/hrharder/go-gas/gas"
 )
 
 func main() {
