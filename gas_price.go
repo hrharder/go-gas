@@ -1,3 +1,7 @@
+// Package gas provides a client for the ETH Gas Station API and convenience functions.
+//
+// It includes type aliases for each priority level supported by ETH Gas Station, functions to get the lastest price
+// from the API, and a closure that can be used to cache results for a user-defined period of time.
 package gas
 
 import (
@@ -34,7 +38,8 @@ const (
 	GasPriorityAverage = GasPriority("average")
 )
 
-// SuggestGasPrice returns a suggested gas price value in wei (base units) for timely transaction execution.
+// SuggestGasPrice returns a suggested gas price value in wei (base units) for timely transaction execution. It always
+// makes a new call to the ETH Gas Station API. Use NewGasPriceSuggester to leverage cached results.
 //
 // The returned price depends on the priority specified, and supports all priorities supported by the ETH Gas Station API.
 func SuggestGasPrice(priority GasPriority) (*big.Int, error) {
@@ -46,6 +51,8 @@ func SuggestGasPrice(priority GasPriority) (*big.Int, error) {
 }
 
 // SuggestFastGasPrice is a helper method that calls SuggestGasPrice with GasPriorityFast
+//
+// It always makes a new call to the ETH Gas Station API. Use NewGasPriceSuggester to leverage cached results.
 func SuggestFastGasPrice() (*big.Int, error) {
 	return SuggestGasPrice(GasPriorityFast)
 }
