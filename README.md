@@ -13,7 +13,7 @@ Built only on the standard library, it has no external dependencies other than `
 The `go-gas` module supports Go modules. Add to your project with the following command.
 
 ```
-go get -u github.com/hrharder/go-gas
+go get -u github.com/hrharder/go-gas/gas
 ```
 
 ## Usage
