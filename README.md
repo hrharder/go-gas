@@ -1,6 +1,6 @@
 # Module: `go-gas`
 
-A simple Golang wrapper for the [ETH Gas Station](https://ethgasstation.info) API.
+A simple Golang client for the [ETH Gas Station](https://ethgasstation.info) API.
 
 It provides a simple set of methods for loading appropriate gas prices for submitting Ethereum transactions in base units.
 
