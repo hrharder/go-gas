@@ -57,6 +57,11 @@ func SuggestFastGasPrice() (*big.Int, error) {
 	return SuggestGasPrice(GasPriorityFast)
 }
 
+// conversion factor to go from (gwei * 10) to wei
+// equal to: (raw / 10) => gwei => gwei * 1e9 => wei
+// simplifies to: raw * 1e8 => wei
+var conversionFactor = big.NewFloat(100000000)
+
 type ethGasStationResponse struct {
 	Fast    json.Number `json:"fast"`
 	Fastest json.Number `json:"fastest"`
@@ -89,12 +94,12 @@ func parseGasPriceToWei(raw json.Number) (*big.Int, error) {
 		return nil, errors.New("eth: unable to parse float value")
 	}
 
-	gwei := new(big.Float).Mul(num, big.NewFloat(100000000))
+	gwei := new(big.Float).Mul(num, conversionFactor)
 	if !gwei.IsInt() {
 		return nil, errors.New("eth: unable to represent gas price as integer")
 	}
 
-	var wei *big.Int
-	wei, _ = gwei.Int(wei)
-	return new(big.Int).Set(wei), nil
+	// we can skip the accuracy check because we know from above that gwei is an integer
+	wei, _ := gwei.Int(new(big.Int))
+	return wei, nil
 }
