@@ -77,16 +77,16 @@ func NewGasPriceSuggester(maxResultAge time.Duration) (GasPriceSuggester, error)
 }
 
 type gasPriceManager struct {
+	sync.Mutex
+
 	latestResponse *ethGasStationResponse
 	fetchedAt      time.Time
 	maxResultAge   time.Duration
-
-	mux sync.Mutex
 }
 
 func (m *gasPriceManager) suggestCachedGasPrice(priority GasPriority) (*big.Int, error) {
-	m.mux.Lock()
-	defer m.mux.Unlock()
+	m.Lock()
+	defer m.Unlock()
 
 	// fetch new values if stored result is older than the maximum age
 	if time.Since(m.fetchedAt) > m.maxResultAge {
