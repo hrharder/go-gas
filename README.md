@@ -23,7 +23,7 @@ Package `gas` provides two main ways to fetch a gas price from the ETH Gas Stati
 1. Fetch the current recommended price for a given priority level with a new API call each time
    - Use `gas.SuggestGasPrice` for a specific priority level
    - Use `gas.SuggestFastGasPrice` to fetch the fast priority level (no arguments)
-1. Create a new `GasPriceSuggester` which maintains a cache of results for a user-defined length
+1. Create a new `GasPriceSuggester` which maintains a cache of results for a user-defined duration
    - Use `gas.NewGasPriceSuggester` and specify a max result age
    - Use the returned function to fetch new gas prices, or use the cache based on how old the results are
 
@@ -58,7 +58,7 @@ func main() {
     fmt.Println(fastGasPrice)
 
     // alternatively, use the NewGasPriceSuggester which maintains a cache of results until they are older than max age
-    suggestGasPrice, err := gas.NewGasPriceSuggester(5 * time.Second)
+    suggestGasPrice, err := gas.NewGasPriceSuggester(5 * time.Minute)
     if err != nil {
         log.Fatal(err)
     }
@@ -68,8 +68,8 @@ func main() {
         return nil, err
     }
 
-    // after 5 seconds, the cache will be invalidated and new results will be fetched
-    time.Sleep(5 * time.Second)
+    // after 5 minutes, the cache will be invalidated and new results will be fetched
+    time.Sleep(5 * time.Minute)
     fasGasPriceFromAPI, err := suggestGasPrice(gas.GasPriorityFast)
     if err != nil {
         log.Fatal(err)
