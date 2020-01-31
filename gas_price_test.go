@@ -36,10 +36,10 @@ func TestLoadGasPrices(t *testing.T) {
 	rawPrices, err := loadGasPrices()
 	require.NoError(t, err)
 
-	assert.GreaterOrEqual(t, rawPrices.Fastest, rawPrices.Fast)
-	assert.GreaterOrEqual(t, rawPrices.Fast, rawPrices.Average)
-	assert.GreaterOrEqual(t, rawPrices.Average, rawPrices.SafeLow)
-	assert.GreaterOrEqual(t, rawPrices.SafeLow, 0.0)
+	require.GreaterOrEqual(t, rawPrices.Fastest, rawPrices.Fast)
+	require.GreaterOrEqual(t, rawPrices.Fast, rawPrices.Average)
+	require.GreaterOrEqual(t, rawPrices.Average, rawPrices.SafeLow)
+	require.GreaterOrEqual(t, rawPrices.SafeLow, 0.0)
 }
 
 func TestGasPriceManager(t *testing.T) {
@@ -60,12 +60,12 @@ func TestGasPriceManager(t *testing.T) {
 	// 1. should use a cached result up til duration has passed
 	// - we can ensure a cached result is used by manually setting a cached result as -1
 	cachedResult, err := mgr.suggestCachedGasPrice(GasPriorityFast)
-	assert.NoError(t, err)
+	require.NoError(t, err)
 	assert.Equal(t, "-100000000", cachedResult.String(), "cached result should be negative since we manually set the result")
 
 	// 2. should fetch a new result after duration has passed
 	time.Sleep(51 * time.Millisecond)
 	newResult, err := mgr.suggestCachedGasPrice(GasPriorityFast)
-	assert.NoError(t, err)
+	require.NoError(t, err)
 	assert.Equal(t, newResult.Cmp(big.NewInt(0)), 1, "new result should be greater than 0")
 }
