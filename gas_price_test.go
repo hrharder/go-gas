@@ -1,9 +1,9 @@
 package gas
 
 import (
-	"encoding/json"
 	"math/big"
 	"testing"
+	"time"
 
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
@@ -23,7 +23,7 @@ func TestSuggestGasPrice(t *testing.T) {
 }
 
 func TestParseGasPriceToWei(t *testing.T) {
-	oneGweiInGasStationUnits := json.Number("10")
+	oneGweiInGasStationUnits := 10.0
 	oneGweiInBaseUnits := big.NewInt(int64(1e9))
 
 	parsed, err := parseGasPriceToWei(oneGweiInGasStationUnits)
@@ -36,17 +36,36 @@ func TestLoadGasPrices(t *testing.T) {
 	rawPrices, err := loadGasPrices()
 	require.NoError(t, err)
 
-	fast, err := rawPrices.Fast.Float64()
-	require.NoError(t, err)
-	fastest, err := rawPrices.Fastest.Float64()
-	require.NoError(t, err)
-	safeLow, err := rawPrices.SafeLow.Float64()
-	require.NoError(t, err)
-	average, err := rawPrices.Average.Float64()
-	require.NoError(t, err)
+	require.GreaterOrEqual(t, rawPrices.Fastest, rawPrices.Fast)
+	require.GreaterOrEqual(t, rawPrices.Fast, rawPrices.Average)
+	require.GreaterOrEqual(t, rawPrices.Average, rawPrices.SafeLow)
+	require.GreaterOrEqual(t, rawPrices.SafeLow, 0.0)
+}
 
-	assert.GreaterOrEqual(t, fastest, fast)
-	assert.GreaterOrEqual(t, fast, average)
-	assert.GreaterOrEqual(t, average, safeLow)
-	assert.GreaterOrEqual(t, safeLow, 0.0)
+func TestGasPriceManager(t *testing.T) {
+	// create "phony" negative price result so we know the cache is being used
+	prices := &ethGasStationResponse{
+		Fast:    -1.0,
+		Fastest: -1.0,
+		SafeLow: -1.0,
+		Average: -1.0,
+	}
+
+	mgr := gasPriceManager{
+		latestResponse: prices,
+		fetchedAt:      time.Now(),
+		maxResultAge:   50 * time.Millisecond,
+	}
+
+	// 1. should use a cached result up til duration has passed
+	// - we can ensure a cached result is used by manually setting a cached result as -1
+	cachedResult, err := mgr.suggestCachedGasPrice(GasPriorityFast)
+	require.NoError(t, err)
+	assert.Equal(t, "-100000000", cachedResult.String(), "cached result should be negative since we manually set the result")
+
+	// 2. should fetch a new result after duration has passed
+	time.Sleep(51 * time.Millisecond)
+	newResult, err := mgr.suggestCachedGasPrice(GasPriorityFast)
+	require.NoError(t, err)
+	assert.Equal(t, newResult.Cmp(big.NewInt(0)), 1, "new result should be greater than 0")
 }
