@@ -66,11 +66,13 @@ func NewGasPriceSuggester(maxResultAge time.Duration) (GasPriceSuggester, error)
 	if err != nil {
 		return nil, err
 	}
+
 	m := gasPriceManager{
 		latestResponse: prices,
 		fetchedAt:      time.Now(),
 		maxResultAge:   maxResultAge,
 	}
+
 	return func(priority GasPriority) (*big.Int, error) {
 		return m.suggestCachedGasPrice(priority)
 	}, nil
@@ -79,9 +81,10 @@ func NewGasPriceSuggester(maxResultAge time.Duration) (GasPriceSuggester, error)
 type gasPriceManager struct {
 	sync.Mutex
 
-	latestResponse *ethGasStationResponse
-	fetchedAt      time.Time
-	maxResultAge   time.Duration
+	fetchedAt    time.Time
+	maxResultAge time.Duration
+
+	latestResponse ethGasStationResponse
 }
 
 func (m *gasPriceManager) suggestCachedGasPrice(priority GasPriority) (*big.Int, error) {
@@ -113,21 +116,22 @@ type ethGasStationResponse struct {
 	Average float64 `json:"average"`
 }
 
-func loadGasPrices() (*ethGasStationResponse, error) {
+func loadGasPrices() (ethGasStationResponse, error) {
+	var prices ethGasStationResponse
+
 	res, err := http.Get(ETHGasStationURL)
 	if err != nil {
-		return nil, err
+		return prices, err
 	}
 
-	var body ethGasStationResponse
-	if err := json.NewDecoder(res.Body).Decode(&body); err != nil {
-		return nil, err
+	if err := json.NewDecoder(res.Body).Decode(&prices); err != nil {
+		return prices, err
 	}
 
-	return &body, nil
+	return prices, nil
 }
 
-func parseSuggestedGasPrice(priority GasPriority, prices *ethGasStationResponse) (*big.Int, error) {
+func parseSuggestedGasPrice(priority GasPriority, prices ethGasStationResponse) (*big.Int, error) {
 	switch priority {
 	case GasPriorityFast:
 		return parseGasPriceToWei(prices.Fast)

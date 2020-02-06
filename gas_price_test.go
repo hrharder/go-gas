@@ -44,7 +44,7 @@ func TestLoadGasPrices(t *testing.T) {
 
 func TestGasPriceManager(t *testing.T) {
 	// create "phony" negative price result so we know the cache is being used
-	prices := &ethGasStationResponse{
+	prices := ethGasStationResponse{
 		Fast:    -1.0,
 		Fastest: -1.0,
 		SafeLow: -1.0,
